@@ -49,6 +49,13 @@ public class CustomRepository {
                 sql,PgrServer.class).getSingleResult();
     }
 
+    public Object getGraphBnd() {
+        String sql = "select st_asgeojson(st_extent(geom)) from pgrserver ;";
+        
+        return entityManager.createNativeQuery( sql )
+                .getSingleResult();
+    }
+    
     public Object createJsonDriveDistPoly(Set<Integer> list) {
         String listStr = list.toString();
         listStr = listStr.replace("[", "(");
@@ -60,7 +67,8 @@ public class CustomRepository {
                 + "'geometry',CAST(st_asgeojson(t.geom) as json)"
                 + ") as TEXT) as st_json "
                 + "from (select st_concavehull(st_collect("
-                + "st_startpoint(geom)),0.8) as geom from pgrserver "
+                + "st_startpoint(ST_GeometryN(geom,1))),0.8) as geom "
+                + "from pgrserver "
                 + "where source in " 
                 + listStr
                 + ") t;";
@@ -92,7 +100,7 @@ public class CustomRepository {
         }
 
         String sql = "select CAST(json_build_object('type','Feature',"
-                + "'id',"+ gid + ","
+                + "'id','"+ gid + "',"
                 + "'properties',json_build_object('feat_length',"
                 + "st_length(t.geom,true),"
                 + "'fid',"+gid+attrib+"),"
@@ -114,7 +122,7 @@ public class CustomRepository {
         listStr = listStr.replace("]", ")");
 
         String sql = "select CAST(json_build_object('type','Feature',"
-                + "'id',"+ gid + ","
+                + "'id','"+ gid + "',"
                 + "'properties',json_build_object('feat_length',"
                 + "st_length(t.geom,true),"
                 + "'fid',"+gid+"),"
@@ -137,11 +145,23 @@ public class CustomRepository {
 
         if( !list.isEmpty() ) {
             for(int i=0;i<list.size()-1;i++) {
-                retVal.append((String)createJsonRouteResponse(list.get(i),i+1));
-                retVal.append(",");
+                if( !list.get(i).isEmpty()) {
+                    
+                    if(retVal.length() > 0 )
+                        retVal.append(",");
+                    
+                    retVal.append((String)createJsonRouteResponse(
+                            list.get(i),i+1));                    
+                }
             }
-            retVal.append((String)createJsonRouteResponse(list.get(
-                    list.size()-1),list.size()));
+            if( !list.get(list.size()-1).isEmpty() ) {
+                
+                if(retVal.length() > 0 )
+                    retVal.append(",");
+                
+                retVal.append((String)createJsonRouteResponse(list.get(
+                        list.size()-1),list.size()));
+            }
         }
         retVal.append("]}");
 
@@ -166,20 +186,31 @@ public class CustomRepository {
 
         if( !list.isEmpty() ) {
             for(int i=0;i<list.size()-1;i++) {
-                fidCounter++;
-                retVal.append((String)createJsonRouteResponse(
-                        list.get(i),fidCounter,additionalAttrib.get(i)));
-                retVal.append(",");
+                if( !list.get(i).isEmpty()) {
+                    fidCounter++;
+                    
+                    if(retVal.length() > 0 )
+                        retVal.append(",");
+                        
+                    retVal.append((String)createJsonRouteResponse(
+                            list.get(i),fidCounter,additionalAttrib.get(i)));                    
+                }
             }
-            fidCounter++;
-            retVal.append((String)createJsonRouteResponse(list.get(
+            if( !list.get(list.size()-1).isEmpty() ) {
+                fidCounter++;
+                
+                if(retVal.length() > 0 )
+                    retVal.append(",");
+                
+                retVal.append((String)createJsonRouteResponse(list.get(
                     list.size()-1),fidCounter,
                     additionalAttrib.get(list.size()-1)));
+            }
         }
         if( withHeader ) {
             retVal.append("]}");
         }
-
+        
         return retVal.toString();        
     }
 }

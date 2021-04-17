@@ -19,7 +19,8 @@
 Introduction
 ------------
 pgrServer is a routing service that is able to use pgRouting topologies
-to load data into a JGraphT graph for very fast searches even with dense networks.
+to load data into a JGraphT graph for very fast searches even with dense networks 
+such as the OpenStreetMap (OSM) data set. 
 
 The graph is created at startup when the topology is read from a PostgreSQL database. This graph though can be re-created at regular intervals by making a service request, for networks that have dynamic costs.
 
@@ -174,3 +175,10 @@ Since this is a memory intensive application, configuring Tomcat to use more mem
 
 Refer to Tomcat documentation for more information on memory allocation. 
 
+
+When using the spring-boot application's Tomcat, the following can be performed to pass the 
+required memory parameters: 
+
+```
+mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Xms2048m -Xmx8192m"
+```
