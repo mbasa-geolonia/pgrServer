@@ -88,13 +88,17 @@ docker-compose build pgrserver
 docker-compose up -d
 ```
 
-From here, the app can be tested via http://localhost:8080/pgrServer/swagger-ui.html.
+From here, the application can now be tested by 
+[displaying the List of APIs](#display-the-list-of-apis). 
 
 
 Preparing the Topology
 ----------------------
 
-* Create a topology table. Refer to pgRouting's Documentations on the __pgr_createTopology__ function. It is also possible to use Osm2Po to create a topology table using OSM pbf data files. Also refer to the Osm2Po documentations on topology creation. 
+* Create a topology table. Refer to pgRouting's Documentations on the __pgr_createTopology__ function. 
+
+
+* It is also possible to use OSM2PO to create a topology table using OSM pbf data files. Refer to this [pgrServer WIKI](https://github.com/mbasa/pgrServer/wiki/Importing-Data-Using-Osm2Po) for more information on how to use OSM2PO to create topologies for pgrServer.  
 
 
 * Ensure that there is an index on an __unique id__ field, an index on the __source__ field, an index on the __target__ field, and a spatial index on the __geometry__ field of the topology table.
@@ -131,7 +135,7 @@ Display the List of APIs
 The list of APIs can be viewed by displaying the Swagger page:
 
 ```html
-http://localhost:8080/pgrServer/swagger-ui.html
+http://localhost:8080/pgrServer/
 ```
 
 ![Alt text](pics/Swagger.png?raw=true)
