@@ -84,7 +84,7 @@ For convenience, a Docker image can be built for this project. There are a few e
 
 ```
 # build the image and spin up the container(s)
-docker-compose build pgrserver
+docker build -t mbasa/pgrserver:latest .
 docker-compose up -d
 ```
 
@@ -105,11 +105,35 @@ Preparing the Topology
 
 
 * Create a View Table __pgrserver__ based on the topology table that will contain the following fields:
-id, source, target, cost, geom.
+id, source, target, cost, reverse_cost, length, geom.
 
 ```sql
-CREATE VIEW pgrserver AS SELECT id,node_from AS source,node_to AS target,cost,wkb_geometry AS geom FROM kanto ;
+CREATE VIEW pgrserver AS SELECT id,node_from AS source,node_to AS target,cost, reverse_cost, length, wkb_geometry AS geom FROM kanto ;
 ```
+
+**Note:**
+
+1. the `length` column has to be in **meters**(m) units.
+  
+2. the `reverse_cost` value has to be **greater than** the `cost` in order for the edge to be 
+considered as a one-way street.
+
+
+
+Getting the Application
+-----------------------
+
+The latest *WAR* file of the application can be downloaded from each stable release
+of this repository, and can either be placed in a Tomcat Application Server or
+run stand alone via the command:
+
+```
+java -jar pgrServer.war
+```
+
+![Alt text](pics/Startup.png?raw=true)
+
+
 
 Building the Application
 ------------------------
@@ -152,7 +176,11 @@ curl -X POST -F "authcode=abc12345" "http://localhost:8080/pgrServer/api/graphre
 Viewing the Data
 ----------------
 
-pgrServer returns a GeoJSON object for the created route or driving distance polygon, hence any application that supports GeoJSON can be used to view the results.
+A demo application, *[pgrServerDemo](http://github.com/mbasa/pgrServerDemo)* , has been created
+to easily display selected features of pgrServer.
+
+
+Also, pgrServer returns a GeoJSON object for the created route or driving distance polygon, hence any application that supports GeoJSON can be used to view the results.
 
 To quickly view the results, GeoJSONLint web service can be used:
 
